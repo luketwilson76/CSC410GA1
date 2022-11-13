@@ -1,12 +1,18 @@
+// what the class does
+
 #include <cstdlib>
+#include <random>
 #include <iostream>
+
 using namespace std;
+
 class Pixel {
 public:
     int red;
     int blue;
     int green;
 };
+
 class genome {
 public:
     genome() {
@@ -19,13 +25,13 @@ public:
         deallocate();
     }
     // destructor
-    void allocate(int nGenes)
+    void allocate(int numGenes)
     {
-        if (nGenes <= 0)
-        {
+        if (nGenes != NULL) {
             deallocate();
-            genes = new Pixel[nGenes];
         }
+        genes = new Pixel[numGenes];
+        nGenes = numGenes;
     }
     void deallocate()
     {
@@ -40,9 +46,11 @@ public:
         // value for rand is 227 because it starts at 0 to 226
         for (int i = 0; i < nGenes; i++)
         {
-            int redValue = rand() % 227;
-            int greenValue = rand() % 227;
-            int blueValue = rand() % 227;
+
+            int redValue = (rand() % 226) + 1;
+            int greenValue = (rand() % 226) + 1;
+            int blueValue = (rand() % 226) + 1;
+
             set_red(i, redValue);
             set_green(i, greenValue);
             set_blue(i, blueValue);
@@ -52,7 +60,7 @@ public:
     {
         genes[index].red = value;
     }
-    int get_red(int index)
+    int& get_red(int index)
     {
         return genes[index].red;
     }
@@ -60,7 +68,7 @@ public:
     {
         genes[index].green = value;
     }
-    int get_green(int index)
+    int& get_green(int index)
     {
         return genes[index].green;
     }
@@ -68,18 +76,22 @@ public:
     {
         genes[index].blue = value;
     }
-    int get_blue(int index)
+    int &get_blue(int index)
     {
         return genes[index].blue;
     }
-    void print()
+
+    //print out all the genes color values
+    void print() 
     {
         for (int i = 0; i < nGenes; i++)
         {
-            cout << "gene " << i << "(" << get_red(i) << get_green(i) << get_blue(i) << ")\n";
+            cout << "gene " << i << "(" << get_red(i) << ", " << get_green(i) << ", " << get_blue(i) << ")\n";
         }
     }
+
     Pixel* genes;
     int nGenes;
 private:
+
 };
