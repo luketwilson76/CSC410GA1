@@ -45,7 +45,7 @@ public:
 		}
 	}
 
-	void set_target(Pixel target, int imageSize)
+	void set_target(Pixel* target, int imageSize)
 	{
 			targetGenome = target;
 			int imageS = imageSize;
@@ -108,7 +108,7 @@ private:
 	int nIndividuals = 0;
 
 	vector<genome> pop;
-	Pixel targetGenome;
+	Pixel* targetGenome;
 	int imageS = 0;
 
 	int crossovers = 0;
