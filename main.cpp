@@ -1,4 +1,5 @@
 #include "genome.cpp"   // this is assuming that the file has the same name as the
+#include "population.cpp"
 // class.
 #include <iostream>   // this is so that the << redirect operators and 
                       // cout works
