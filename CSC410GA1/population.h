@@ -1,8 +1,8 @@
 #include <cstdlib>
-#include <random>
-#include <time.h>
 #include <iostream>
 #include <vector>
+#include <algorithm>
+
 #ifndef POPULATION_H
 #define POPULATION_H
 #include "genome.cpp"
@@ -16,6 +16,7 @@ public:
 	{
 		individuals = NULL;
 		nIndividuals = 0;
+		srand((unsigned)time(NULL));
 	}
 
 	~population()
@@ -70,10 +71,6 @@ public:
 			{
 				p2fitness = p1fitness;
 				p1fitness = fitness;
-				if (i != 0)
-				{
-					p2 = p1;
-				}
 				p1 = i;
 				continue;
 			}
@@ -95,35 +92,91 @@ public:
 		mutationRate = mRate;
 	}
 
-	void generate_new_population(int useRoulette=1)
+	void generate_new_population(int useRoulette=0)
 	{
-		generation += 1;
-		for (int i = 0; i < nIndividuals - 2; i++)
+		//stores crossover points
+		vector <int> crossoverPoints;
+
+		//store crossover points and make sure there's no duplicates
+		for (int i = 0; i < numCrossOvers;i++) 
 		{
-			if (i == p1 || p2) 
+			int randNum = rand() % (nGenesPerGenome - 0 + 1) + 0;
+			while (find(crossoverPoints.begin(), crossoverPoints.end(), randNum) != crossoverPoints.end())
+			{
+				int randNum = rand() % (nGenesPerGenome - 0 + 1) + 0;
+			}
+			crossoverPoints.push_back(randNum);
+		}
+		
+		//sort in decending order of crossover points
+		sort(crossoverPoints.begin(), crossoverPoints.end());
+
+		
+		if (crossoverPoints[numCrossOvers-1] != nGenesPerGenome - 1)
+		{
+			crossoverPoints.push_back(nGenesPerGenome - 1);
+		}
+		
+		//crossover children
+		for (int i = 0; i < nIndividuals / 2; i++) {
+			//set children
+			int c1 = i;
+			int c2 = i + 1;
+
+			//makes sure parents aren't written over in population
+			if (i == p1) 
 			{
 				continue;
 			}
-			else{
-				int crossover = (rand() % numCrossOvers) + 1;
-				for (int j = 0; j < 2; j++) 
-				{
-					individuals[i].set_red(j, int(individuals[p1].genes[nGenesPerGenome - j + 1].red));
-					individuals[i].set_green(j, int(individuals[p1].genes[nGenesPerGenome - j + 1].green));
-					individuals[i].set_blue(j, int(individuals[p1].genes[nGenesPerGenome - j + 1].blue));
+			while (c2 == p1 || c2 == p2) 
+			{
+				c2 += 1;
+			}
 
-					individuals[i].set_mRate(mutationRate);
-					individuals[i].mutate_gene(j);
+			//set mutation rate
+			individuals[c1].set_mRate(mutationRate);
+			individuals[c2].set_mRate(mutationRate);
+
+			for (int j = 0; j < crossoverPoints.size(); j++)
+			{
+				int startPoint;
+				bool flip = false;
+
+				if (j == 0) 
+				{
+					startPoint = 0;
 				}
-				for (int j = 0; j < nGenesPerGenome - 2; j++)
+				else
 				{
-					individuals[i].set_red(nGenesPerGenome - (j + 1), int(individuals[p2].genes[j].red));
-					individuals[i].set_green(nGenesPerGenome - (j + 1), int(individuals[p2].genes[j].green));
-					individuals[i].set_blue(nGenesPerGenome - (j + 1), int(individuals[p2].genes[j].blue));
+					startPoint = crossoverPoints[j-1];
+				}
 
-					individuals[i].mutate_gene(nGenesPerGenome - j + 1);
-					individuals[i];
-					cout << endl;
+				for (int k = startPoint; k < crossoverPoints[j]; k++) 
+				{
+					if (flip == false) 
+					{
+						//crossover
+						individuals[c1].genes[k] = individuals[p1].genes[k];
+						individuals[c2].genes[k] = individuals[p2].genes[k];
+						//mutate genes
+						individuals[c1].mutate_gene(k);
+						individuals[c2].mutate_gene(k);
+						//flip crossover points
+						bool flip = true;
+						continue;
+					}
+					if (flip == true)
+					{
+						//crossover
+						individuals[c1].genes[k] = individuals[p2].genes[k];
+						individuals[c2].genes[k] = individuals[p1].genes[k];
+						//mutate genes
+						individuals[c1].mutate_gene(k);
+						individuals[c2].mutate_gene(k);
+						//flip crossover points
+						bool flip = false;
+						continue;
+					}
 				}
 			}
 		}
@@ -146,12 +199,11 @@ public:
 		cout << endl;
 		cout << "parent 2: ";
 		individuals[p2].print();
-		cout << endl;
 	}
 
 	void print_population() 
 	{
-		cout << "generation " << generation << endl;
+		cout << endl;
 		for (int i = 0; i < nIndividuals; i++) 
 		{
 			cout << "Crossover points: " << numCrossOvers << " " << "Mutation Rate: " << mutationRate << " ";
@@ -168,7 +220,6 @@ private:
 	double mutationRate;
 	int nGenesPerGenome;
 
-	int generation = 0;
 	Pixel targetGenome;
 
 	int p1;

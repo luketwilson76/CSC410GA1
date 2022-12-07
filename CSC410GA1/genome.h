@@ -1,13 +1,9 @@
 #include <cstdlib>
-#include <random>
 #include <iostream>
-#include <ctime>
 #ifndef GENOME_H
 #define GENOME_H
 
 using namespace std;
-
-void srand(int seed);
 
 struct Pixel
 {
@@ -20,6 +16,7 @@ public:
     genome() {
         genes = NULL;
         nGenes = 0;
+        srand((unsigned)time(NULL));
     }
     // constructor
     ~genome()
@@ -51,28 +48,24 @@ public:
     // mutate a single gene
     void mutate_gene(int index)
     {
-        double min = 0;
-        double max = 1;
         // if random 0-1 is less than mutation rate then set colors to random
+        float random = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
         //mutate red
-        double random = (double)rand() / 1;
-        random = min + random * (max - min);
         if (random < mRate)
         {
             int redValue = (rand() % 256) + 1;
             set_red(index, redValue);
         }
+
         //mutate green
-        random = (double)rand() / 1;
-        random = min + random * (max - min);
         if (random < mRate)
         {
             int greenValue = (rand() % 256) + 1;
             set_green(index, greenValue);
         }
+
         //mutate blue
-        random = (double)rand() / 1;
-        random = min + random * (max - min);
         if (random < mRate)
         {
             int blueValue = (rand() % 256) + 1;
